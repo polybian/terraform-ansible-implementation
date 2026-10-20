@@ -1,0 +1,126 @@
+# baseline.yml — LAB: harden + bootstrap a fresh Ubuntu host.
+#
+# What it does:
+#   1. Creates the admin user (sudo, key-only auth).
+#   2. Hardens SSH: no root login, key-only, custom port variable.
+#   3. Installs a small set of base packages.
+#   4. Enables UFW with a deny-by-default posture and explicit allows.
+#
+# Idempotency: every task uses modules that converge (user, lineinfile,
+# apt, authorized_key). The UFW tasks shell out to `ufw` (ansible-core has
+# no ufw module), so each one checks current state first and only reports
+# "changed" when it actually changed something — a re-run is a no-op.
+# Handlers restart sshd only when a config line actually moved.
+#
+# Run: ansible-playbook -i inventory/inventory.ini playbooks/baseline.yml
+---
+- name: Baseline hardening and base packages
+  hosts: lab
+  become: true
+
+  handlers:
+    - name: Restart SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+  tasks:
+    - name: Ensure the admin group exists
+      ansible.builtin.group:
+        name: "{{ admin_user }}"
+        state: present
+
+    - name: Create the admin user
+      ansible.builtin.user:
+        name: "{{ admin_user }}"
+        groups:
+          - sudo
+        append: true
+        shell: /bin/bash
+        create_home: true
+        state: present
+
+    # NOTE: the canonical module for this is ansible.posix.authorized_key
+    # (handles multiple keys, dedup, exclusivity), but it lives in the
+    # ansible.posix Galaxy collection — and this lab deliberately stays
+    # 100% ansible-core with zero collection dependencies so it installs
+    # with a single `pip install ansible-core`. For one admin key, a
+    # managed file with the right owner/permissions is idempotent and
+    # honest. Production upgrade path: add requirements.yml, install
+    # ansible.posix, switch this task to authorized_key.
+    - name: Ensure the admin user's .ssh directory exists
+      ansible.builtin.file:
+        path: "/home/{{ admin_user }}/.ssh"
+        state: directory
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+        mode: "0700"
+
+    - name: Install the admin user's SSH public key
+      ansible.builtin.copy:
+        dest: "/home/{{ admin_user }}/.ssh/authorized_keys"
+        owner: "{{ admin_user }}"
+        group: "{{ admin_user }}"
+        mode: "0600"
+        content: "{{ admin_ssh_public_key }}\n"
+
+    - name: Harden SSH — disable root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PermitRootLogin"
+        line: "PermitRootLogin no"
+      notify: Restart SSH
+
+    - name: Harden SSH — disable password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PasswordAuthentication"
+        line: "PasswordAuthentication no"
+      notify: Restart SSH
+
+    - name: Harden SSH — enforce public-key authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PubkeyAuthentication"
+        line: "PubkeyAuthentication yes"
+      notify: Restart SSH
+
+    - name: Harden SSH — listen on the configured port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?Port"
+        line: "Port {{ ssh_port }}"
+      notify: Restart SSH
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name: "{{ base_packages }}"
+        state: present
+
+    # ufw has no module in ansible-core, so these tasks check state first
+    # and only run when there is something to change.
+    - name: Read current UFW status
+      ansible.builtin.command: ufw status verbose
+      register: ufw_status
+      changed_when: false
+
+    - name: Enable UFW
+      ansible.builtin.command: ufw --force enable
+      when: "'inactive' in ufw_status.stdout"
+      changed_when: true
+
+    - name: Set UFW default incoming policy to deny
+      ansible.builtin.command: ufw default deny incoming
+      when: "'deny (incoming)' not in ufw_status.stdout"
+      changed_when: true
+
+    - name: Allow configured TCP ports through UFW
+      ansible.builtin.command: "ufw allow {{ item }}/tcp"
+      loop: "{{ ufw_allow_tcp }}"
+      when: "not ufw_status.stdout is search(item ~ '/tcp\\s+ALLOW')"
+      changed_when: true

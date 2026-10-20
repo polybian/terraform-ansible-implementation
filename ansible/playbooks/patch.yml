@@ -1,0 +1,45 @@
+# patch.yml — LAB: patch hosts, reboot only if the OS asks for it.
+#
+# What it does:
+#   1. Refreshes the apt cache and applies available upgrades (dist upgrade).
+#   2. Checks for /var/run/reboot-required (the file Ubuntu/Debian touch when
+#      a kernel or core library update needs a restart).
+#   3. Reboots ONLY if the marker exists AND group_vars allows it
+#      (allow_reboot: true). Default is false: in a lab you review first.
+#
+# Why gate the reboot: an unattended reboot during your window is fine, but
+# the default here is conservative on purpose — patching and rebooting are
+# two different change windows in most shops, and this playbook makes that
+# separation visible.
+#
+# Run:  ansible-playbook -i inventory/inventory.ini playbooks/patch.yml
+#       ansible-playbook -i inventory/inventory.ini playbooks/patch.yml -e allow_reboot=true
+---
+- name: Patch hosts, reboot if required and allowed
+  hosts: lab
+  become: true
+
+  tasks:
+    - name: Refresh apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      changed_when: false
+
+    - name: Apply available upgrades
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: true
+
+    - name: Check whether a reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_marker
+
+    - name: Reboot when required and explicitly allowed
+      ansible.builtin.reboot:
+        msg: "Rebooting after patching (terraform-ansible-lab)"
+        reboot_timeout: 600
+      when:
+        - reboot_marker.stat.exists
+        - allow_reboot | bool

@@ -1,0 +1,56 @@
+# deploy-app.yml — LAB: deploy a tiny static site with nginx.
+#
+# What it does:
+#   1. Installs nginx.
+#   2. Drops a static index.html (templated with the host's name) into the
+#      site root.
+#   3. Ensures nginx is enabled and running; restarts it ONLY when the page
+#      actually changed (handler), so re-running this playbook is a no-op.
+#
+# The page content is deliberately trivial: the point of this playbook is the
+# copy → handler pattern (change triggers a service restart), which is how
+# real config deployments work at bigger scale.
+#
+# Run: ansible-playbook -i inventory/inventory.ini playbooks/deploy-app.yml
+---
+- name: Deploy demo static site
+  hosts: webservers
+  become: true
+
+  handlers:
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Deploy the demo index page
+      ansible.builtin.copy:
+        dest: "/var/www/html/{{ site_name }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: "0644"
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head><meta charset="utf-8"><title>{{ site_html_title }}</title></head>
+          <body>
+            <h1>{{ site_html_title }}</h1>
+            <p>Served by {{ inventory_hostname }} ({{ ansible_host | default('unknown') }}).</p>
+            <p><strong>LAB</strong> — deployed by Ansible, not by hand.</p>
+          </body>
+          </html>
+      notify: Restart nginx
+
+    - name: Ensure nginx is enabled and running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true

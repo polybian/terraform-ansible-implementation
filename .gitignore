@@ -1,0 +1,24 @@
+# ---- Terraform ----
+*.tfstate
+*.tfstate.backup
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# ---- Ansible ----
+*.retry
+.vault-pass
+vault-password*
+*-vault-password*
+ansible/inventory/inventory.ini
+ansible/inventory/group_vars/all.yml
+ansible/inventory/host_vars/
+
+# ---- Python / misc ----
+__pycache__/
+*.pyc
+.DS_Store

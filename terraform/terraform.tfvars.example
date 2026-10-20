@@ -1,0 +1,13 @@
+# Example variable values for the terraform-ansible-lab.
+# Copy to terraform.tfvars and edit — terraform.tfvars is gitignored and must
+# never be committed. Everything below is fictional placeholder data.
+
+# subscription_id = "00000000-0000-0000-0000-000000000000"
+# project_name    = "tflab"
+# environment     = "lab"
+# location        = "centralus"
+#
+# allowed_ssh_cidr = "10.0.0.0/8"   # your lab / VPN range
+# vm_size          = "Standard_B1s"
+# admin_username   = "labadmin"
+# ssh_public_key_path = "~/.ssh/id_lab.pub"

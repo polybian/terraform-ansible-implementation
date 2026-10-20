@@ -1,0 +1,18 @@
+; Example Ansible inventory for the terraform-ansible-lab.
+; Copy to inventory.ini and adjust — inventory.ini is gitignored.
+; All hosts are fictional RFC 1918 lab addresses; nothing here is reachable.
+
+[webservers]
+web01 ansible_host=10.10.1.10 ansible_user=labadmin
+web02 ansible_host=10.10.1.11 ansible_user=labadmin
+
+[dbservers]
+db01 ansible_host=10.10.2.10 ansible_user=labadmin
+
+[lab:children]
+webservers
+dbservers
+
+[lab:vars]
+; Group-level knobs that apply to every lab host.
+ansible_python_interpreter=/usr/bin/python3
