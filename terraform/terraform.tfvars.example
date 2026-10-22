@@ -7,7 +7,7 @@
 # environment     = "demo"
 # location        = "centralus"
 #
-# allowed_ssh_cidr = "10.0.0.0/8"   # your home network / VPN range
+# allowed_ssh_cidr = "203.0.113.25/32"  # YOUR public IP as /32 (required — no default). Find it with: curl -s ifconfig.me
 # vm_size          = "Standard_B1s"
 # admin_username   = "demoadmin"
 # ssh_public_key_path = "~/.ssh/id_demo.pub"

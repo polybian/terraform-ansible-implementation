@@ -82,7 +82,7 @@ Ansible → run the playbooks. Full sequence in `docs/iac-workflow.md`.
   State can contain secrets in plaintext — the runbook covers locking it
   down.
 
-## Validation (actually run in this sandbox)
+## Validation (actually run locally)
 
 Terraform — standalone binary 1.16.6 from releases.hashicorp.com,
 real `init` (pinned azurerm 4.47.0 downloaded from the registry) and
@@ -130,10 +130,10 @@ hardcoded passwords anywhere.
 
 Honest notes:
 - The first `terraform init` failed with "no space left on device" — the
-  sandbox's `/tmp` is a 512M tmpfs and the azurerm provider binary is
+  local `/tmp` is a 512M tmpfs and the azurerm provider binary is
   huge. Reran with `TMPDIR` pointed at a roomier home-directory path and
-  init succeeded. That's a sandbox quirk, not a config problem.
-- `ansible-galaxy collection install` failed in this sandbox (repeated
+  init succeeded. That's an environment quirk, not a config problem.
+- `ansible-galaxy collection install` failed locally (repeated
   `IncompleteRead` from galaxy.ansible.com), so this implementation deliberately uses
   zero collections — 100% ansible-core modules plus `command:` tasks with
   state checks for UFW. The baseline playbook documents the
@@ -141,4 +141,4 @@ Honest notes:
 - **Not validated (needs a real cloud):** `terraform plan`/`apply`
   against an actual Azure subscription, and running the playbooks against
   real hosts — those need an account, money, and SSH reachability, none
-  of which this sandbox has. Nothing in this repo pretends otherwise.
+  of which are available here. Nothing in this repo pretends otherwise.

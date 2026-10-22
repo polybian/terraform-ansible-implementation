@@ -41,8 +41,7 @@ variable "subnet_address_prefixes" {
 
 variable "allowed_ssh_cidr" {
   type        = string
-  description = "CIDR allowed to reach the VM on SSH (port 22) through the NSG. Keep this narrow — your home network or VPN range."
-  default     = "10.0.0.0/8"
+  description = "CIDR allowed to reach the VM on SSH (port 22) through the NSG. REQUIRED — no default on purpose: SSH arrives over the public internet, so your source is your public IP (e.g. 203.0.113.25/32 from whatismyip), not an RFC1918 range. The old 10.0.0.0/8 default never matched real SSH traffic and silently locked everyone out. Keep this narrow — a /32 of your own public IP is ideal."
 }
 
 variable "vm_size" {
