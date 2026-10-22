@@ -40,7 +40,6 @@ discipline of never letting secrets or real IDs near the repo.
 | `ansible/playbooks/patch.yml` | apt upgrades, reboots only if the OS flags it AND `allow_reboot` is true |
 | `docs/architecture.md` | Design decisions: pinned providers, state strategy, roles vs playbooks |
 | `docs/iac-workflow.md` | Runbook: init → plan → apply → state, drift detection, secrets guidance |
-| `docs/interview-answers.md` | "How did you build this?" — talking points for interviews |
 
 ## Quick start
 
