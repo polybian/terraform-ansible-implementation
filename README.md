@@ -82,7 +82,7 @@ Ansible → run the playbooks. Full sequence in `docs/iac-workflow.md`.
   State can contain secrets in plaintext — the runbook covers locking it
   down.
 
-## Validation (actually run locally)
+## Validation
 
 Terraform — standalone binary 1.16.6 from releases.hashicorp.com,
 real `init` (pinned azurerm 4.47.0 downloaded from the registry) and
@@ -128,17 +128,11 @@ documented all-zero placeholder in `variables.tf` /
 `...PLACEHOLDER` fake in `all.yml.example`; no private key material, no
 hardcoded passwords anywhere.
 
-Honest notes:
-- The first `terraform init` failed with "no space left on device" — the
-  local `/tmp` is a 512M tmpfs and the azurerm provider binary is
-  huge. Reran with `TMPDIR` pointed at a roomier home-directory path and
-  init succeeded. That's an environment quirk, not a config problem.
-- `ansible-galaxy collection install` failed locally (repeated
-  `IncompleteRead` from galaxy.ansible.com), so this implementation deliberately uses
-  zero collections — 100% ansible-core modules plus `command:` tasks with
-  state checks for UFW. The baseline playbook documents the
-  `ansible.posix.authorized_key` upgrade path in a comment.
-- **Not validated (needs a real cloud):** `terraform plan`/`apply`
-  against an actual Azure subscription, and running the playbooks against
-  real hosts — those need an account, money, and SSH reachability, none
-  of which are available here. Nothing in this repo pretends otherwise.
+Notes:
+- The playbooks use only built-in ansible-core modules (no Galaxy collections),
+  with `command:` tasks plus state checks for UFW, so there's nothing extra to
+  install. The baseline playbook notes how to switch to
+  `ansible.posix.authorized_key`.
+- Not run yet: `terraform plan`/`apply` against a real Azure subscription, or
+  the playbooks against real hosts. Both need a subscription and reachable SSH
+  hosts.
