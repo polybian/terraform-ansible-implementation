@@ -1,6 +1,6 @@
-# Terraform + Ansible Lab — Infrastructure as Code for Systems Roles
+# Terraform + Ansible Implementation — Infrastructure as Code for Systems Roles
 
-A lab-grade Infrastructure as Code stack: **Terraform** provisions the
+A demo-grade Infrastructure as Code stack: **Terraform** provisions the
 network and the VM on Azure, **Ansible** configures what's inside it.
 Provisioning and configuration are deliberately two tools, not one —
 see `docs/architecture.md` for why.
@@ -33,8 +33,8 @@ discipline of never letting secrets or real IDs near the repo.
 | `terraform/outputs.tf` | RG name, VNet/subnet/NSG IDs, VM name + public IP (glue for Ansible) |
 | `terraform/versions.tf` | Terraform `>= 1.9.0`, azurerm pinned to `4.47.0`, commented remote-state backend template |
 | `terraform/terraform.tfvars.example` | Example values — copy to `terraform.tfvars` (gitignored), never commit real ones |
-| `ansible/inventory/inventory.ini.example` | Fictional RFC 1918 lab hosts — copy to `inventory.ini` (gitignored) |
-| `ansible/inventory/group_vars/all.yml.example` | Fictional lab variables + SSH placeholder key — copy to `all.yml` (gitignored) |
+| `ansible/inventory/inventory.ini.example` | Fictional RFC 1918 hosts — copy to `inventory.ini` (gitignored) |
+| `ansible/inventory/group_vars/all.yml.example` | Fictional variables + SSH placeholder key — copy to `all.yml` (gitignored) |
 | `ansible/playbooks/baseline.yml` | Admin user, SSH hardening, base packages, UFW deny-by-default |
 | `ansible/playbooks/deploy-app.yml` | nginx + static demo site, restart-via-handler pattern |
 | `ansible/playbooks/patch.yml` | apt upgrades, reboots only if the OS flags it AND `allow_reboot` is true |
@@ -75,7 +75,7 @@ Ansible → run the playbooks. Full sequence in `docs/iac-workflow.md`.
   `sshd_config`. The public key is injected from the operator's disk at
   plan time (`file(pathexpand(...))`), so a missing `.pub` fails the plan
   before a VM you can't reach gets created.
-- **Explicit default-deny NSG.** Inbound SSH from the lab range only, HTTP
+- **Explicit default-deny NSG.** Inbound SSH from the home network range only, HTTP
   inside the VNet only, then a documented `deny-all-inbound` rule —
   intent spelled out, not left to Azure's implicit default.
 - **State is sensitive.** `.gitignore` blocks `*.tfstate`, `.terraform/`,
@@ -135,7 +135,7 @@ Honest notes:
   huge. Reran with `TMPDIR` pointed at a roomier home-directory path and
   init succeeded. That's a sandbox quirk, not a config problem.
 - `ansible-galaxy collection install` failed in this sandbox (repeated
-  `IncompleteRead` from galaxy.ansible.com), so the lab deliberately uses
+  `IncompleteRead` from galaxy.ansible.com), so this implementation deliberately uses
   zero collections — 100% ansible-core modules plus `command:` tasks with
   state checks for UFW. The baseline playbook documents the
   `ansible.posix.authorized_key` upgrade path in a comment.

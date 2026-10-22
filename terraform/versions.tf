@@ -9,7 +9,7 @@ terraform {
   }
 
   # Default: local backend. State lives in terraform.tfstate next to this
-  # config. That is fine for a LAB; do not use it for anything real, and
+  # config. That is fine for a demo; do not use it for anything real, and
   # never commit the .tfstate file (it can contain secrets).
   #
   # Remote-state template (commented out on purpose): uncomment, fill in,
@@ -21,6 +21,6 @@ terraform {
   #   resource_group_name  = "rg-terraform-state"
   #   storage_account_name = "<your-storage-account-name>"
   #   container_name       = "tfstate"
-  #   key                  = "terraform-ansible-lab/terraform.tfstate"
+  #   key                  = "terraform-ansible-implementation/terraform.tfstate"
   # }
 }

@@ -1,4 +1,4 @@
-# IaC workflow runbook — terraform-ansible-lab (LAB)
+# IaC workflow runbook — terraform-ansible-implementation
 
 ## 1. Init
 
@@ -116,7 +116,7 @@ bug or a change request that hasn't been written down yet.
   read data, it doesn't belong in git. If it ends up in state anyway,
   encrypt/lock down the state backend and rotate the secret.
 
-## 8. Destroy (lab teardown)
+## 8. Destroy (teardown)
 
 ```bash
 terraform plan -destroy -out=destroy.plan
@@ -124,5 +124,5 @@ terraform apply destroy.plan
 ```
 
 Destroy is a plan like any other — review it before you apply it. In this
-lab, teardown is how you prove the whole stack is reproducible: `apply` →
+implementation, teardown is how you prove the whole stack is reproducible: `apply` →
 verify → `destroy` → `apply` again.

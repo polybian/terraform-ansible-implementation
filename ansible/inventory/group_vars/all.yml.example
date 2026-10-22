@@ -1,21 +1,21 @@
-# Example group variables for the terraform-ansible-lab.
+# Example group variables for the terraform-ansible-implementation.
 # Lives next to the inventory file (ansible/inventory/group_vars/) so Ansible
 # auto-loads it for the hosts in inventory.ini. Copy to all.yml and edit —
-# all.yml is gitignored. Everything below is fictional LAB data.
+# all.yml is gitignored. Everything below is fictional demo data.
 #
 # Secrets (passwords, real keys, API tokens) NEVER go here. Use ansible-vault
 # for encrypted values: `ansible-vault encrypt_string 'secret' --name my_var`.
 
-admin_user: labadmin
+admin_user: demoadmin
 
 # SSH public key installed for the admin user. This is a PLACEHOLDER, not a
 # real key — replace it with the output of `cat ~/.ssh/id_lab.pub`.
-admin_ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPlAcEhOlDeRkEyPLACEHOLDER lab@example"
+admin_ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPlAcEhOlDeRkEyPLACEHOLDER demo@example"
 
 # Non-standard SSH port example; baseline.yml still applies it.
 ssh_port: 22
 
-# Packages every lab host gets. Keep the list small and deliberate.
+# Packages every demo host gets. Keep the list small and deliberate.
 base_packages:
   - curl
   - git
@@ -30,8 +30,8 @@ ufw_allow_tcp:
   - 22
 
 # deploy-app.yml serves this on port 80 via nginx.
-site_name: tflab-demo
-site_html_title: "tflab-demo — LAB"
+site_name: tfdemo
+site_html_title: "tfdemo — demo site"
 
 # patch.yml only reboots when this is true AND /var/run/reboot-required exists.
 allow_reboot: false

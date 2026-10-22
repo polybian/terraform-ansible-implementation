@@ -1,4 +1,4 @@
-# baseline.yml — LAB: harden + bootstrap a fresh Ubuntu host.
+# baseline.yml — harden + bootstrap a fresh Ubuntu host.
 #
 # What it does:
 #   1. Creates the admin user (sudo, key-only auth).
@@ -15,7 +15,7 @@
 # Run: ansible-playbook -i inventory/inventory.ini playbooks/baseline.yml
 ---
 - name: Baseline hardening and base packages
-  hosts: lab
+  hosts: demo
   become: true
 
   handlers:
@@ -42,7 +42,7 @@
 
     # NOTE: the canonical module for this is ansible.posix.authorized_key
     # (handles multiple keys, dedup, exclusivity), but it lives in the
-    # ansible.posix Galaxy collection — and this lab deliberately stays
+    # ansible.posix Galaxy collection — and this implementation deliberately stays
     # 100% ansible-core with zero collection dependencies so it installs
     # with a single `pip install ansible-core`. For one admin key, a
     # managed file with the right owner/permissions is idempotent and

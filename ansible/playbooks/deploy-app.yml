@@ -1,4 +1,4 @@
-# deploy-app.yml — LAB: deploy a tiny static site with nginx.
+# deploy-app.yml — deploy a tiny static site with nginx.
 #
 # What it does:
 #   1. Installs nginx.
@@ -44,7 +44,7 @@
           <body>
             <h1>{{ site_html_title }}</h1>
             <p>Served by {{ inventory_hostname }} ({{ ansible_host | default('unknown') }}).</p>
-            <p><strong>LAB</strong> — deployed by Ansible, not by hand.</p>
+            <p><strong>Demo site</strong> — deployed by Ansible, not by hand.</p>
           </body>
           </html>
       notify: Restart nginx
